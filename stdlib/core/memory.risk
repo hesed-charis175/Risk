@@ -1,0 +1,26 @@
+extern "malloc.h" lib "c" {
+	func malloc(size: u64) -> ptr<void>;	
+	func abort() -> void;
+	func memcpy(dest: ptr<void>, src: ptr<void>, size: u64) -> void;
+}
+
+generic _Nums = [f32, f64, i32, i64, u64, u32];
+
+func alloc(size: u64) -> ptr<void> {
+	p: ptr<void> = malloc(size);
+	if(p == null) { abort(); }
+	return p;
+}
+
+func copyMemory(dest: ptr<void>, src: ptr<void>, size: u64) -> void {
+	memcpy(dest, src, size);
+}
+
+func setMemory<T: _Nums>(dest: ptr<void>, value: T, count: u64) -> void {
+	d: ptr<T> = cast<ptr<T>>(dest);
+	i: u64 = 0;
+	while (i < count) {
+		*(d + i) = value;
+		i = i + 1;
+	}
+}

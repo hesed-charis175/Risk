@@ -1,0 +1,272 @@
+extern "__core_headers__/__string__.h" {
+  func strLength(s: string) -> i32;
+  func strCharAt(s: string, idx: i32) -> string;
+  func strConcat(a: string, b: string) -> string;
+}
+
+func charToInt(s: string) -> i32 {
+  return cast<i32>(cast<char>(s));
+}
+
+func strIntToChar(code: i32) -> string {
+  return cast<string>(cast<char>(code));
+}
+
+func charToString(c: char) -> string {
+  return cast<string>(c);
+}
+
+func _strMatchAt(s: string, pos: i32, substr: string) -> bool {
+  m: i32 = strLength(substr);
+  j: i32 = 0;
+  while (j < m) {
+    if (charToInt(strCharAt(s, pos + j)) != charToInt(strCharAt(substr, j))) {
+      return false;
+    }
+    j = j + 1;
+  }
+  return true;
+}
+
+func _isSpaceCode(code: i32) -> bool {
+  return code == 32 || (code >= 9 && code <= 13);
+}
+
+func strUpper(s: string) -> string {
+  result: string = "";
+  n: i32 = strLength(s);
+  i: i32 = 0;
+  while (i < n) {
+    code: i32 = charToInt(strCharAt(s, i));
+    if (code >= 97 && code <= 122) {
+      result = strConcat(result, strIntToChar(code - 32));
+    } else {
+      result = strConcat(result, strCharAt(s, i));
+    }
+    i = i + 1;
+  }
+  return result;
+}
+
+func strLower(s: string) -> string {
+  result: string = "";
+  n: i32 = strLength(s);
+  i: i32 = 0;
+  while (i < n) {
+    code: i32 = charToInt(strCharAt(s, i));
+    if (code >= 65 && code <= 90) {
+      result = strConcat(result, strIntToChar(code + 32));
+    } else {
+      result = strConcat(result, strCharAt(s, i));
+    }
+    i = i + 1;
+  }
+  return result;
+}
+
+func strCapitalize(s: string) -> string {
+  result: string = "";
+  n: i32 = strLength(s);
+  i: i32 = 0;
+  while (i < n) {
+    code: i32 = charToInt(strCharAt(s, i));
+    if (i == 0 && code >= 97 && code <= 122) {
+      result = strConcat(result, strIntToChar(code - 32));
+    } else if (i > 0 && code >= 65 && code <= 90) {
+      result = strConcat(result, strIntToChar(code + 32));
+    } else {
+      result = strConcat(result, strCharAt(s, i));
+    }
+    i = i + 1;
+  }
+  return result;
+}
+
+func strSubstr(s: string, start: i32, len: i32) -> string {
+  result: string = "";
+  if (start < 0 || len < 0) {
+    return result;
+  }
+  n: i32 = strLength(s);
+  if (start >= n) {
+    return result;
+  }
+  end: i32 = start + len;
+  if (end > n) {
+    end = n;
+  }
+  i: i32 = start;
+  while (i < end) {
+    result = strConcat(result, strCharAt(s, i));
+    i = i + 1;
+  }
+  return result;
+}
+
+func strFind(s: string, substr: string) -> i32 {
+  n: i32 = strLength(s);
+  m: i32 = strLength(substr);
+  if (m == 0) {
+    return 0;
+  }
+  if (m > n) {
+    return -1;
+  }
+  i: i32 = 0;
+  while (i <= n - m) {
+    if (_strMatchAt(s, i, substr)) {
+      return i;
+    }
+    i = i + 1;
+  }
+  return -1;
+}
+
+func strLastFind(s: string, substr: string) -> i32 {
+  n: i32 = strLength(s);
+  m: i32 = strLength(substr);
+  if (m == 0) {
+    return n;
+  }
+  if (m > n) {
+    return -1;
+  }
+  i: i32 = n - m;
+  while (i >= 0) {
+    if (_strMatchAt(s, i, substr)) {
+      return i;
+    }
+    i = i - 1;
+  }
+  return -1;
+}
+
+func strReplace(s: string, target: string, replacement: string) -> string {
+  m: i32 = strLength(target);
+  if (m == 0) {
+    return s;
+  }
+  n: i32 = strLength(s);
+  result: string = "";
+  i: i32 = 0;
+  while (i < n) {
+    if (i <= n - m && _strMatchAt(s, i, target)) {
+      result = strConcat(result, replacement);
+      i = i + m;
+    } else {
+      result = strConcat(result, strCharAt(s, i));
+      i = i + 1;
+    }
+  }
+  return result;
+}
+
+func strSplit(s: string, delim: string) -> Array<string> {
+  result: Array<string> = [];
+  n: i32 = strLength(s);
+  m: i32 = strLength(delim);
+  if (m == 0) {
+    i: i32 = 0;
+    while (i < n) {
+      result.push(strCharAt(s, i));
+      i = i + 1;
+    }
+    return result;
+  }
+  start: i32 = 0;
+  i: i32 = 0;
+  while (i <= n - m) {
+    if (_strMatchAt(s, i, delim)) {
+      result.push(strSubstr(s, start, i - start));
+      i = i + m;
+      start = i;
+    } else {
+      i = i + 1;
+    }
+  }
+  result.push(strSubstr(s, start, n - start));
+  return result;
+}
+
+func strJoin(parts: Array<string>, delim: string) -> string {
+  n: i32 = length(parts);
+  result: string = "";
+  i: i32 = 0;
+  while (i < n) {
+    result = strConcat(result, parts[i]);
+    if (i < n - 1) {
+      result = strConcat(result, delim);
+    }
+    i = i + 1;
+  }
+  return result;
+}
+
+func strTrim(s: string) -> string {
+  n: i32 = strLength(s);
+  start: i32 = 0;
+  while (start < n && _isSpaceCode(charToInt(strCharAt(s, start)))) {
+    start = start + 1;
+  }
+  end: i32 = n;
+  while (end > start && _isSpaceCode(charToInt(strCharAt(s, end - 1)))) {
+    end = end - 1;
+  }
+  return strSubstr(s, start, end - start);
+}
+
+func strStartsWith(s: string, prefix: string) -> bool {
+  n: i32 = strLength(s);
+  m: i32 = strLength(prefix);
+  if (m > n) {
+    return false;
+  }
+  return _strMatchAt(s, 0, prefix);
+}
+
+func strEndsWith(s: string, suffix: string) -> bool {
+  n: i32 = strLength(s);
+  m: i32 = strLength(suffix);
+  if (m > n) {
+    return false;
+  }
+  return _strMatchAt(s, n - m, suffix);
+}
+
+func strContains(s: string, substr: string) -> bool {
+  return strFind(s, substr) >= 0;
+}
+
+func strToChars(s: string) -> Array<char> {
+  result: Array<char> = [];
+  n: i32 = strLength(s);
+  i: i32 = 0;
+  while (i < n) {
+    result.push(cast<char>(strCharAt(s, i)));
+    i = i + 1;
+  }
+  return result;
+}
+
+func strChars(s: string) -> Array<string> {
+  result: Array<string> = [];
+  n: i32 = strLength(s);
+  i: i32 = 0;
+  while (i < n) {
+    result.push(strCharAt(s, i));
+    i = i + 1;
+  }
+  return result;
+}
+
+func strCompare(s1: string, s2: string) -> bool {
+	if(strLength(s1) != strLength(s2)) return false;
+	chars: Array<string> = strChars(s1);
+	n: i32 = length(chars);
+	i: i32 = 0;
+	while(i < n) {
+		if(charToInt(chars[i]) != charToInt(strChars(s2)[i])) { return false; }
+		i++;
+	}
+	return true;
+}

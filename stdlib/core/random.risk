@@ -1,0 +1,44 @@
+import "@core/time.risk";
+
+_rng_state: u64 = 0;
+_rng_seeded: bool = false;
+
+func randSeed(seed: i64) -> void {
+  _rng_state = cast<u64>(seed);
+  _rng_seeded = true;
+}
+
+func _rng_next() -> u64 {
+  if (!_rng_seeded) {
+    randSeed(timeMicros());
+  }
+  _rng_state = _rng_state * 6364136223846793005 + 1442695040888963407;
+  return _rng_state;
+}
+
+func randInt(max: i32) -> i32 {
+  if (max <= 0) {
+    return 0;
+  }
+  bits: u64 = _rng_next() >> 33;
+  return cast<i32>(bits) % max;
+}
+
+func randRange(min: i32, max: i32) -> i32 {
+  if (max <= min) {
+    return min;
+  }
+  return min + randInt(max - min);
+}
+
+func randFloat() -> f64 {
+  bits: u64 = _rng_next() >> 11;
+  return cast<f64>(bits) / 9007199254740992.0;
+}
+
+func randFloatRange(min: f64, max: f64) -> f64 {
+  if (max <= min) {
+    return min;
+  }
+  return min + randFloat() * (max - min);
+}

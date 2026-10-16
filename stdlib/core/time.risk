@@ -1,0 +1,7 @@
+extern "__core_headers__/__time__.h" {
+  func timeNow() -> i64;
+  func timeMillis() -> i64;
+  func timeMicros() -> i64;
+  func timeSleep(ms: i32) -> void;
+  func timeMonotonic() -> i64;
+}

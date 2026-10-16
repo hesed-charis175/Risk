@@ -1,0 +1,79 @@
+_MATH_PI: const f64 = 3.14159265358979323846;
+
+generic _Num = [f64, i32];
+
+extern "math.h" lib "c" {
+  func pow(base: f64, exp: f64) -> f64;
+  func sqrt(x: f64) -> f64;
+  func cbrt(x: f64) -> f64;
+  func floor<T: _Num>(x: T) -> T;
+  func ceil<T: _Num>(x: T) -> T;
+  func round(x: f64) -> f64;
+  func exp(x: f64) -> f64;
+  func exp2(x: f64) -> f64;
+  func log(x: f64) -> f64;
+  func log10(x: f64) -> f64;
+  func log2(x: f64) -> f64;
+  func sin(x: f64) -> f64;
+  func cos(x: f64) -> f64;
+  func tan(x: f64) -> f64;
+  func asin(x: f64) -> f64;
+  func acos(x: f64) -> f64;
+  func atan(x: f64) -> f64;
+  func atan2(y: f64, x: f64) -> f64;
+  func sinh(x: f64) -> f64;
+  func cosh(x: f64) -> f64;
+  func tanh(x: f64) -> f64;
+}
+
+func abs<T: _Num>(x: T) -> T {
+  if (x < 0.0) {
+    return -x;
+  }
+  return x;
+}
+
+func sq(x: f64) -> f64 {
+  return x * x;
+}
+
+func mod<T: _Num>(x: T, y: T) -> T {
+  q: T = x / y;
+  qTrunc: T = 0;
+  if (q >= 0.0) {
+    qTrunc = floor(q);
+  } else {
+    qTrunc = ceil(q);
+  }
+  return x - qTrunc * y;
+}
+
+func max(a: f64, b: f64) -> f64 {
+  if (a > b) {
+    return a;
+  }
+  return b;
+}
+
+func min(a: f64, b: f64) -> f64 {
+  if (a < b) {
+    return a;
+  }
+  return b;
+}
+
+func degToRad(deg: f64) -> f64 {
+  return deg * (_MATH_PI / 180.0);
+}
+
+func radToDeg(rad: f64) -> f64 {
+  return rad * (180.0 / _MATH_PI);
+}
+
+func isNan(x: f64) -> bool {
+  return x != x;
+}
+
+func isInf(x: f64) -> bool {
+  return x == INF || x == -INF;
+}
