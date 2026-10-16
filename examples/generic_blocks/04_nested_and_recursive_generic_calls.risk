@@ -1,0 +1,26 @@
+generic _Num = [i32, f32];
+
+func square<T: _Num>(x: T) -> T {
+    return x * x;
+}
+
+func sumSquares<T: _Num>(a: T, b: T) -> T {
+    return square(a) + square(b);
+}
+
+func fact<T: _Num>(n: T) -> T {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * fact(n - 1);
+}
+
+func main() -> i32 {
+    a: i32 = 3;
+    b: i32 = 4;
+    ioPrintln(sumSquares(a, b));
+
+    f: i32 = 5;
+    ioPrintln(fact(f));
+    return 0;
+}
