@@ -1,0 +1,190 @@
+import "@core/memory";
+import "@core/string";
+
+extern "stdio.h" lib "c" {
+	block FILE;
+	func fopen(path: string, mode: string) -> ptr<FILE>;
+	func fclose(stream: ptr<FILE>) -> i32;
+	func fseek(stream: ptr<FILE>, offset: i64, whence: i32) -> i32;
+	func ftell(stream: ptr<FILE>) -> i64;
+	func fread(buf: ptr<void>, size: u64, count: u64, stream: ptr<FILE>) -> u64;
+	func fwrite(buf: ptr<void>, size: u64, count: u64, stream: ptr<FILE>) -> u64;
+	func remove(path: string) -> i32;
+}
+
+extern "stdlib.h" lib "c" {
+	func exit(code: i32) -> void;
+}
+
+func handleErr(path: string) -> void {
+	ioPrintln("[fileIOErr] : Could not open file ", path);
+	exit(1);
+}
+
+func fioRead(path: string) -> string {
+	f: ptr<FILE> = fopen(path, "rb");
+	if(f == null) { handleErr(path); return ""; } 
+	fseek(f, 0, 2);
+	size: i64 = ftell(f);
+	if(size < 0) {
+		fclose(f);
+		return "";
+	}
+	fseek(f, 0, 0);
+
+	buf: ptr<u8> = alloc(cast<u64>(size) + 1);
+	n_read: u64 = 0;
+	if(size > 0) {
+		n_read = fread(buf, 1, cast<u64>(size), f);
+	}
+	buf[n_read] = 0;
+	fclose(f);
+	
+	return cast<string>(buf);
+
+}
+
+func fioWrite(path: string, content: string) -> bool {
+	f: ptr<FILE> = fopen(path, "wb");
+	if(f == null) { handleErr(path); return false; }
+
+	len: u64 = strLength(content);
+	written: u64 = 0;
+	if(len > 0) { written = fwrite(cast<ptr<void>>(content), 1, len, f); }  // equivalent to written = fwrite((void*)content);
+	close_rc: i32 = fclose(f);
+	return (written == len) && (close_rc == 0);
+}
+
+func fioAppend(path: string, content: string) -> bool {
+	f: ptr<FILE> = fopen(path, "ab");
+	if(f == null) { handleErr(path); return false; }
+	
+	len: u64 = strLength(content);
+	written: u64 = 0;
+	if(len > 0) { written = fwrite(cast<ptr<void>>(content), 1, len, f);  }// equivalent to written = fwrite((void*)content); }	
+	close_rc: i32 = fclose(f);
+	return (written == len) && (close_rc == 0);
+}
+
+func fioExists(path: string) -> bool {
+	f: ptr<FILE> = fopen(path, "rb");
+	// Unlike fioRead/fioWrite/fioAppend, a failed fopen() here is exactly
+	// the expected outcome for a nonexistent path, not an exceptional
+	// failure -- so, unlike those functions, this does NOT call
+	// handleErr()/exit(1). An existence check that terminates the process
+	// on "doesn't exist" can never actually report false, which defeats
+	// its entire purpose.
+	if (f == null) { return false; }
+	fclose(f);
+	return true;
+}
+
+func fioDelete(path: string) -> bool {
+	return remove(path) == 0;
+}
+
+func fioSize(path: string) -> i64 {
+	f: ptr<FILE> = fopen(path, "rb");
+	if(f == null) { return cast<i64>(-1); }
+	
+	if (fseek(f, 0, 2) != 0 ) {
+		fclose(f);
+		return cast<i64>(-1);
+	}
+	size: i64 = ftell(f);
+	fclose(f);
+	if (size < 0) { 
+		return cast<i64>(-1);
+	}
+	return size;
+}
+
+func fioCopy(src: string, dest: string) -> bool {
+	in: ptr<FILE> = fopen(src, "rb");
+	if (in == null) { return false; }
+
+	out: ptr<FILE> = fopen(dest, "wb");
+	if(out == null) { fclose(in); return false; }
+
+	chunk_size: u64 = 65536;
+	chunk: ptr<u8> = alloc(chunk_size);
+	ok: bool = true;
+
+	while(true) {
+		n: u64 = fread(chunk, 1, chunk_size, in);
+		if (n > 0) {
+			if (fwrite(chunk, 1, n, out) != n) {
+				ok = false;
+				break;
+			}
+		}
+		if ( n < chunk_size) { break; }
+	}
+
+	dealloc(chunk);
+	in_rc: i32 = fclose(in);
+	out_rc: i32 = fclose(out);
+	return ok && (in_rc == 0) && (out_rc == 0);
+}
+
+func fioBytesRead(path: string, buffer: ptr<void>, count: u64) -> i64 {
+	f: ptr<FILE> = fopen(path, "rb");
+	if ( f == null ) { return cast<i64>(-1); }
+
+	n_read: u64 = 0;
+	if (count > 0) {
+		n_read = fread(buffer, 1, count, f);
+	}
+
+	fclose(f);
+	return cast<i64>(n_read);
+}
+
+
+func fioBytesWrite(path: string, buffer: ptr<void>, count: u64) -> i64 {
+	f: ptr<FILE> = fopen(path, "wb");
+	if (f == null) { return cast<i64>(-1); }
+
+	n_written: u64 = 0;
+	if (count > 0) { n_written = fwrite(buffer, 1, count, f); }
+
+	close_rc: i32 = fclose(f);
+	if (close_rc != 0) { return cast<i64>(-1); }
+	return cast<i64>(n_written);
+}
+
+func fioBufRead(path: string) -> Array<string> {
+  content: string = fioRead(path);
+  result: Array<string> = [];
+  n: i32 = strLength(content);
+  if (n == 0) {
+    return result;
+  }
+
+  lines: Array<string> = strSplit(content, "\n");
+  numLines: i32 = length(lines);
+  endsWithNewline: bool = charToInt(strCharAt(content, n - 1)) == 10;
+
+  if (endsWithNewline && numLines > 0) {
+    i: i32 = 0;
+    while (i < numLines - 1) {
+      result.push(lines[i]);
+      i = i + 1;
+    }
+  } else {
+    result = lines;
+  }
+  return result;
+}
+
+func fioBufWrite(path: string, lines: Array<string>) -> bool {
+  content: string = "";
+  n: i32 = length(lines);
+  i: i32 = 0;
+  while (i < n) {
+    content = strConcat(content, lines[i]);
+    content = strConcat(content, "\n");
+    i = i + 1;
+  }
+  return fioWrite(path, content);
+}
