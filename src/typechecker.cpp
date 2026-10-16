@@ -2575,7 +2575,7 @@ TypeInfo TypeChecker::type_of_expr(Expr *e) {
           if (block_has_owned_ptr_fields(inner)) {
             diags.push_back({Diagnostic::Severity::Warning,
                              "clear() on Array<" + inner + ">: '" + inner +
-                                 "' has ptr<T>/refc T fields that will leak — "
+                                 "' has ptr<T>/refc T fields that will leak : "
                                  "free inner pointers before calling clear()",
                              call->line, call->col,
                              call->end_col ? call->end_col : call->col});
@@ -2613,7 +2613,7 @@ TypeInfo TypeChecker::type_of_expr(Expr *e) {
           if (block_has_owned_ptr_fields(inner)) {
             diags.push_back({Diagnostic::Severity::Warning,
                              "destroy() on Array<" + inner + ">: '" + inner +
-                                 "' has ptr<T>/refc T fields that will leak — "
+                                 "' has ptr<T>/refc T fields that will leak : "
                                  "free inner pointers before calling destroy()",
                              call->line, call->col,
                              call->end_col ? call->end_col : call->col});
@@ -2698,7 +2698,7 @@ TypeInfo TypeChecker::type_of_expr(Expr *e) {
                 {Diagnostic::Severity::Warning,
                  "clear() on Hashmap<" + key_type + ", " + value_type +
                      ">: values of type '" + value_type +
-                     "' will leak — free each value before calling clear()",
+                     "' will leak : free each value before calling clear()",
                  call->line, call->col,
                  call->end_col ? call->end_col : call->col});
           } else if (block_has_owned_ptr_fields(value_type)) {
@@ -2706,7 +2706,7 @@ TypeInfo TypeChecker::type_of_expr(Expr *e) {
                              "clear() on Hashmap<" + key_type + ", " +
                                  value_type + ">: '" + value_type +
                                  "' has ptr<T>/refc T fields that will leak "
-                                 "— free inner pointers before calling "
+                                 ": free inner pointers before calling "
                                  "clear()",
                              call->line, call->col,
                              call->end_col ? call->end_col : call->col});
