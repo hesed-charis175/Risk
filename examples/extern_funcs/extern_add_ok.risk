@@ -1,0 +1,7 @@
+extern "adda.h" { func add(a: i32, b: i32) -> i32; }
+
+func main() -> i32 {
+    result: i32 = add(5, 6);
+    ioPrintln(toString(result));
+    return 0;
+}
