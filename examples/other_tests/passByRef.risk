@@ -1,0 +1,11 @@
+func add(a: ptr<i32>, b: i32) -> void {
+	*a += b;
+}
+
+
+func main() -> i32 {
+	var: i32 = 6;
+	add(&var, 7);
+	ioPrintln(var);
+	return 0;
+}

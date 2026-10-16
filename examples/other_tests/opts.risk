@@ -1,0 +1,20 @@
+block KEY {
+	code: i32 = 0;
+	repr: string = "";
+}
+
+UP: KEY = { code = 1000, repr = "UP"};
+
+func main() -> i32 {
+	
+	rawModeEnter();
+	k: KEY;
+	k.code = kbReadKey();
+
+	if(k.code == UP.code) { k.repr = UP.repr; }
+	ioPrintln(k.repr);
+
+
+	rawModeLeave();
+	return 0;
+}

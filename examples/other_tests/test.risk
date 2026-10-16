@@ -1,0 +1,10 @@
+func main() -> i32 {
+	
+	r: Array<i32, 4> = [1,2,3,4];
+
+	ioPrintln("i32==", sizeof(i32));
+	ioPrintln("array<i32>==", sizeof(r));
+	ioPrintln("speculativeNumElement==", sizeof(r) / sizeof(i32));
+	return 0;
+
+}

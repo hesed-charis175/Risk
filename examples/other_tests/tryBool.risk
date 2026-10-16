@@ -1,0 +1,6 @@
+func main() -> i32 {
+	f: bool = false;
+	result: bool = (10 > 5) && !f;
+	ioPrint("Hello");
+	return 0;
+}

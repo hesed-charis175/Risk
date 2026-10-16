@@ -1,0 +1,6 @@
+import "@tui/tui.risk";
+
+func main() -> i32 {
+
+	return 0;
+}

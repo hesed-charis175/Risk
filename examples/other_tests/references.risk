@@ -1,0 +1,13 @@
+func hello(a: ref<string>) -> void {
+	a = str_upper(a);
+}
+
+func main() -> i32 {
+	text: string = "Hello";
+
+	hello(&text);
+
+	print(text);
+
+	return 0;
+}

@@ -1,0 +1,7 @@
+typealias Type = Array<i32, 2>;
+
+func main() -> i32 {
+	a: Type;
+
+	return 0;
+}

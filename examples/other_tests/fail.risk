@@ -1,0 +1,13 @@
+// EXPECTATION: FAIL
+
+func zeros4() -> Array<i32, 4> {
+	out: Array<i32, 4> = [0, 0, 0, 0];
+	return out;
+}
+
+func main() -> i32 {
+	z: Array<i32, 4> = zeros4();
+	ioPrintln(z.repr());
+	ioPrintln(z[0]);
+	return 0;
+}

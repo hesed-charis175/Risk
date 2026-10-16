@@ -1,0 +1,37 @@
+// Tried reproducing earlier test that originally reported a bug (dereferencing a ptr<const<matrix>> and reading its fields used to fail with "unknown field 'rows' on block const<matrix>" because the typechecker didn't remove the const<> wrapper before doing the block-field lookup.
+
+block matrix {
+	rows: i32;
+	cols: i32;
+	data: ptr<f32>;
+}
+
+func matRelu(out: ptr<matrix>, in: ptr<const<matrix>>) -> bool {
+	if((*out).rows != (*in).rows || (*out).cols != (*in).cols) return false;
+	return true;
+}
+
+func matCrossEntropy(out: ptr<matrix>, p: ptr<const<matrix>>, q: ptr<const<matrix>>) -> bool {
+	if((*out).rows != (*p).rows || (*p).rows != (*q).rows ||
+	(*out).cols != (*p).cols || (*p).cols != (*q).cols) return false;
+
+	size: u64 = cast<u64>((*out).rows) * (*out).cols;
+	i: u64 = 0;
+	for(i = 0; i < size; i++) {
+		if (*((*p).data + i) == 0.0) {
+			*((*out).data + i) = 0.0;
+		}
+		else {
+			*((*out).data + i) = *((*p).data + i) * -log(*((*q).data + i));
+		}
+	}
+
+	return true;
+}
+
+func main() -> i32 {
+	m: matrix = { rows= 2, cols=2, data= cast<ptr<f32>>(0) };
+	n: matrix = { rows=3, cols=2, data=cast<ptr<f32>>(0) };
+	ioPrintln(matRelu(&m, &n));
+	return 0;
+}

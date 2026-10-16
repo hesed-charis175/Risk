@@ -1,0 +1,13 @@
+func main() -> i32 {
+	x: const i32 = 42;
+	y: i32 = 4;
+	ptrX: const ptr<i32> = &x;
+
+	*ptrX = 5;
+	ptrX = &y;
+	println("value of x: ", x);
+	println("address of x: ", &x);
+	println("value of ptrX: ", ptrX);
+
+	return 0;
+}

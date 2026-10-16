@@ -1,0 +1,10 @@
+block Thing {
+	field: i32;
+}
+
+func main() -> i32 {
+	a: Thing = {field=5};
+	ptrA: ptr<Thing> = &a;
+	(*ptrA).field++;
+	return 0;
+}

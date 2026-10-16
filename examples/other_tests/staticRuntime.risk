@@ -1,0 +1,10 @@
+generic _Float = [f32, f64];
+
+func createArray<T: _Float, A: i32>(b: i32) -> void {
+	arr: Array<T, A> = [];
+}
+
+func main() -> i32 {
+	createArray
+	return 0;
+}

@@ -1,0 +1,23 @@
+block Person {
+	age: i32;
+	name: string;
+	present: func(Person) -> void = presentMyself;
+	setAge: func(Person) -> void = random;
+}
+
+func presentMyself(p: Person) -> void {
+	ioPrint("My name is ", p.name);
+}
+
+func modAge(p: Person) -> void {
+	p.age = 18;
+}
+
+func main() -> i32 {
+	bro: Person = {name="Hesed", age=9};
+	bro.present();
+	bro.setAge();
+
+	ioPrintln("Bro age is ", bro.age);
+	return 0;
+}	
