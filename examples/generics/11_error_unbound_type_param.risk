@@ -1,0 +1,10 @@
+generic _Num = [i32, f32];
+
+func makeZero<T: _Num>() -> T {
+    return 0;
+}
+
+func main() -> i32 {
+    ioPrintln(makeZero());
+    return 0;
+}

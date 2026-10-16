@@ -1,0 +1,12 @@
+generic _Num = [i32, f32];
+
+func add<T: _Num>(a: T, b: T) -> T {
+    return a + b;
+}
+
+func main() -> i32 {
+    x: i32 = 1;
+    y: f32 = 2.0;
+    ioPrintln(add(x, y));
+    return 0;
+}

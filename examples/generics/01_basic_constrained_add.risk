@@ -1,0 +1,8 @@
+HEADER_FILE
+
+generic _Num = [i32, f32];
+
+func add<T: _Num>(a: T, b: T) -> T {
+    return a + b;
+}
+

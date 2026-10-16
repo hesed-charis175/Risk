@@ -1,0 +1,8 @@
+func addWithDefault(a: i32, b: i32 = 10) -> i32 {
+    return a + b;
+}
+
+func main() -> i32 {
+    ioPrintln(addWithDefault(5));
+    return 0;
+}

@@ -1,0 +1,12 @@
+import "01_basic_constrained_add.risk";
+
+func main() -> i32 {
+    x: i32 = 3;
+    y: i32 = 4;
+    p: f32 = 1.5;
+    q: f32 = 2.5;
+
+    ioPrintln(add(x, y));
+    ioPrintln(add(p, q));
+    return 0;
+}
