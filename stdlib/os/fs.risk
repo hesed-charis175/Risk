@@ -1,0 +1,39 @@
+import "@core/string.risk";
+
+extern "__os_headers__/__fs__.h" {
+  func fsCwd() -> string;
+  func fsChdir(path: string) -> bool;
+
+  func fsMkdir(path: string) -> bool;
+  func fsMkdirAll(path: string) -> bool;
+
+  func fsRemoveFile(path: string) -> bool;
+  func fsRemoveDir(path: string) -> bool;
+  func fsRemoveAll(path: string) -> bool;
+
+  func fsRename(from: string, to: string) -> bool;
+
+  func fsExists(path: string) -> bool;
+  func fsIsFile(path: string) -> bool;
+  func fsIsDir(path: string) -> bool;
+  func fsFileSize(path: string) -> i64;
+  func fsModTime(path: string) -> i64;
+
+  func fsTempDir() -> string;
+
+  func fsListDirRaw(path: string) -> string;
+}
+
+func fsListDir(path: string) -> Array<string> {
+  result: Array<string> = [];
+  if (!fsIsDir(path)) {
+    return result;
+  }
+
+  raw: string = fsListDirRaw(path);
+  if (strLength(raw) == 0) {
+    return result;
+  }
+
+  return strSplit(raw, "\n");
+}
