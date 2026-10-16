@@ -1,0 +1,19 @@
+count: i32 = 0;
+
+func mark_init(p: Person) -> void {
+  count = count + 1;
+}
+
+block Person {
+  name: string;
+  age: i32;
+  init: func(this) -> void = mark_init;
+}
+
+func main() -> i32 {
+  a: Person;
+  b: Person;
+  c: Person;
+  ioPrintln(count);
+  return count;
+}
