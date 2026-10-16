@@ -1,0 +1,85 @@
+import "test_helpers.risk";
+
+func main() -> i32 {
+  ioPrintln("=== string ===");
+
+  checkInt("strLength(hello)", strLength("hello"), 5);
+  checkInt("strLength(empty)", strLength(""), 0);
+
+  checkStr("strUpper", strUpper("Hello World"), "HELLO WORLD");
+  checkStr("strLower", strLower("Hello World"), "hello world");
+  checkStr("strCapitalize", strCapitalize("hello world"), "Hello world");
+  checkStr("strCapitalize(empty)", strCapitalize(""), "");
+
+  checkStr("strSubstr basic", strSubstr("hello world", 6, 5), "world");
+  checkStr("strSubstr out of range", strSubstr("hi", 10, 5), "");
+  checkStr("strSubstr negative start", strSubstr("hello", -1, 3), "");
+  checkStr("strSubstr clamped length", strSubstr("hi", 0, 100), "hi");
+
+  checkInt("strFind found", strFind("hello world", "world"), 6);
+  checkInt("strFind not found", strFind("hi", "hello"), -1);
+  checkInt("strFind empty needle", strFind("hello", ""), 0);
+
+  checkInt("strLastFind basic", strLastFind("abcabcabc", "abc"), 6);
+  checkInt("strLastFind not found", strLastFind("hello", "xyz"), -1);
+  checkInt("strLastFind empty needle", strLastFind("hello", ""), 5);
+
+  checkStr("strConcat", strConcat("foo", "bar"), "foobar");
+  checkStr("strConcat with empty", strConcat("", "bar"), "bar");
+
+  checkStr("strReplace all occurrences", strReplace("aaa", "a", "b"), "bbb");
+  checkStr("strReplace no match", strReplace("hello", "xyz", "Q"), "hello");
+  checkStr("strReplace multi-char", strReplace("foo bar foo", "foo", "baz"),
+          "baz bar baz");
+
+  parts: Array<string> = strSplit("a,bb,ccc", ",");
+  checkInt("strSplit count", length(parts), 3);
+  checkStr("strSplit[0]", parts[0], "a");
+  checkStr("strSplit[1]", parts[1], "bb");
+  checkStr("strSplit[2]", parts[2], "ccc");
+
+  noDelim: Array<string> = strSplit("noDelimHere", ",");
+  checkInt("strSplit no delimiter count", length(noDelim), 1);
+  checkStr("strSplit no delimiter value", noDelim[0], "noDelimHere");
+
+  emptyDelim: Array<string> = strSplit("hi", "");
+  checkInt("strSplit empty delimiter count", length(emptyDelim), 2);
+
+  checkStr("strJoin", strJoin(parts, "-"), "a-bb-ccc");
+
+  checkStr("strTrim both sides", strTrim("  padded  "), "padded");
+  checkStr("strTrim all whitespace", strTrim("   "), "");
+  checkStr("strTrim empty", strTrim(""), "");
+  checkStr("strTrim none needed", strTrim("clean"), "clean");
+
+  checkBool("strStartsWith true", strStartsWith("hello", "he"), true);
+  checkBool("strStartsWith false", strStartsWith("hello", "lo"), false);
+  checkBool("strStartsWith prefix too long", strStartsWith("hi", "hello"),
+           false);
+
+  checkBool("strEndsWith true", strEndsWith("hello", "lo"), true);
+  checkBool("strEndsWith false", strEndsWith("hello", "he"), false);
+  checkBool("strEndsWith suffix too long", strEndsWith("hi", "hello"), false);
+
+  checkBool("strContains true", strContains("hello", "ell"), true);
+  checkBool("strContains false", strContains("hello", "xyz"), false);
+
+  chars: Array<char> = strToChars("hi");
+  checkInt("strToChars length", length(chars), 2);
+
+  strs: Array<string> = strChars("hi");
+  checkInt("strChars length", length(strs), 2);
+  checkStr("strChars[0]", strs[0], "h");
+  checkStr("strChars[1]", strs[1], "i");
+
+  checkStr("charToString", charToString('Z'), "Z");
+  checkStr("strCharAt", strCharAt("hello", 1), "e");
+  checkStr("strCharAt out of range", strCharAt("hi", 10), "");
+
+  checkInt("charToInt", charToInt("A"), 65);
+  checkStr("strIntToChar", strIntToChar(66), "B");
+
+  checkInt("charToInt/strIntToChar round trip", charToInt(strIntToChar(90)), 90);
+
+  return printSummary("string");
+}

@@ -1,0 +1,64 @@
+import "@core";
+
+_pass_count: i32 = 0;
+_fail_count: i32 = 0;
+
+func _strEquals(a: string, b: string) -> bool {
+  if (strLength(a) != strLength(b)) {
+    return false;
+  }
+  return strFind(a, b) == 0;
+}
+
+func _report(name: string, ok: bool, detail: string) -> void {
+  if (ok) {
+    _pass_count = _pass_count + 1;
+    ioPrintln(strConcat("  [PASS] ", name));
+  } else {
+    _fail_count = _fail_count + 1;
+    ioPrintln(strConcat(strConcat("  [FAIL] ", name), detail));
+  }
+}
+
+func checkBool(name: string, actual: bool, expected: bool) -> void {
+  detail: string = strConcat(strConcat(" (expected ", toString(expected)),
+                             strConcat(", got ", strConcat(toString(actual), ")")));
+  _report(name, actual == expected, detail);
+}
+
+func checkInt(name: string, actual: i32, expected: i32) -> void {
+  detail: string = strConcat(strConcat(" (expected ", toString(expected)),
+                             strConcat(", got ", strConcat(toString(actual), ")")));
+  _report(name, actual == expected, detail);
+}
+
+func checkI64(name: string, actual: i64, expected: i64) -> void {
+  detail: string = strConcat(strConcat(" (expected ", toString(expected)),
+                             strConcat(", got ", strConcat(toString(actual), ")")));
+  _report(name, actual == expected, detail);
+}
+
+func checkStr(name: string, actual: string, expected: string) -> void {
+  detail: string = strConcat(strConcat(" (expected \"", expected),
+                             strConcat("\", got \"", strConcat(actual, "\")")));
+  _report(name, _strEquals(actual, expected), detail);
+}
+
+func checkF64(name: string, actual: f64, expected: f64, epsilon: f64) -> void {
+  diff: f64 = actual - expected;
+  absdiff: f64 = diff;
+  if (absdiff < 0.0) {
+    absdiff = -absdiff;
+  }
+  detail: string = strConcat(strConcat(" (expected ", toString(expected)),
+                             strConcat(", got ", strConcat(toString(actual), ")")));
+  _report(name, absdiff < epsilon, detail);
+}
+
+func printSummary(suite_name: string) -> i32 {
+  ioPrintln("");
+  ioPrintln(strConcat("=== ", strConcat(suite_name, " summary ===")));
+  ioPrintln(strConcat("  passed: ", toString(_pass_count)));
+  ioPrintln(strConcat("  failed: ", toString(_fail_count)));
+  return _fail_count;
+}

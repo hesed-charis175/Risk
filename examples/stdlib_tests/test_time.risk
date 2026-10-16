@@ -1,0 +1,38 @@
+import "test_helpers.risk";
+
+func main() -> i32 {
+  ioPrintln("=== time ===");
+
+  n: i64 = timeNow();
+  thousand: i64 = 1000;
+  million: i64 = 1000000;
+  billion: i64 = 1000000000;
+
+  lower_bound: i64 = 1577836800;
+  checkBool("timeNow is a plausible timestamp", n > lower_bound, true);
+
+  m: i64 = timeMillis();
+  checkBool("timeMillis / 1000 matches timeNow", m / thousand == timeNow(),
+           true);
+  checkBool("timeMillis is in plausible range", m > lower_bound * thousand,
+           true);
+
+  u: i64 = timeMicros();
+  checkBool("timeMicros / 1000000 matches timeNow", u / million == timeNow(),
+           true);
+
+  mono1: i64 = timeMonotonic();
+  timeSleep(20);
+  mono2: i64 = timeMonotonic();
+  checkBool("timeMonotonic advances after sleep", mono2 > mono1, true);
+
+  elapsed_ns: i64 = mono2 - mono1;
+  ten_ms_in_ns: i64 = 10 * million;
+  five_sec_in_ns: i64 = 5 * billion;
+  checkBool("elapsed time after 20ms sleep is at least ~10ms",
+           elapsed_ns > ten_ms_in_ns, true);
+  checkBool("elapsed time after 20ms sleep is under 5s",
+           elapsed_ns < five_sec_in_ns, true);
+
+  return printSummary("time");
+}

@@ -1,0 +1,32 @@
+import "test_helpers.risk";
+
+func main() -> i32 {
+  ioPrintln("=== memory ===");
+
+  p: ptr<void> = alloc(16);
+
+  src: Array<u8, 4> = [10, 20, 30, 40];
+  copyMemory(p, cast<ptr<void>>(&src), 4);
+
+  read_back: Array<u8, 4> = [0, 0, 0, 0];
+  copyMemory(cast<ptr<void>>(&read_back), p, 4);
+  checkInt("copyMemory round trip [0]", cast<i32>(read_back[0]), 10);
+  checkInt("copyMemory round trip [1]", cast<i32>(read_back[1]), 20);
+  checkInt("copyMemory round trip [2]", cast<i32>(read_back[2]), 30);
+  checkInt("copyMemory round trip [3]", cast<i32>(read_back[3]), 40);
+
+  setMemory(p, 99, 4);
+  after_set: Array<u8, 4> = [0, 0, 0, 0];
+  copyMemory(cast<ptr<void>>(&after_set), p, 4);
+  checkInt("setMemory fills byte 0", cast<i32>(after_set[0]), 99);
+  checkInt("setMemory fills byte 3", cast<i32>(after_set[3]), 99);
+
+  setMemory(p, 0, 16);
+  cleared: Array<u8, 4> = [1, 1, 1, 1];
+  copyMemory(cast<ptr<void>>(&cleared), p, 4);
+  checkInt("setMemory(0) zeroes memory", cast<i32>(cleared[0]), 0);
+
+  dealloc(p);
+
+  return printSummary("memory");
+}

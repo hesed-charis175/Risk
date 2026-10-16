@@ -1,0 +1,86 @@
+import "test_helpers.risk";
+
+func main() -> i32 {
+  ioPrintln("=== random ===");
+
+  randSeed(1234);
+  a1: i32 = randInt(1000);
+  a2: i32 = randInt(1000);
+  a3: i32 = randInt(1000);
+
+  randSeed(1234);
+  b1: i32 = randInt(1000);
+  b2: i32 = randInt(1000);
+  b3: i32 = randInt(1000);
+
+  checkInt("reseed determinism [0]", b1, a1);
+  checkInt("reseed determinism [1]", b2, a2);
+  checkInt("reseed determinism [2]", b3, a3);
+
+  randSeed(42);
+  i: i32 = 0;
+  int_ok: bool = true;
+  while (i < 2000) {
+    v: i32 = randInt(50);
+    if (v < 0 || v >= 50) {
+      int_ok = false;
+    }
+    i = i + 1;
+  }
+  checkBool("randInt stays in [0,50) over 2000 draws", int_ok, true);
+
+  checkInt("randInt(0) returns 0", randInt(0), 0);
+  checkInt("randInt(-5) returns 0", randInt(-5), 0);
+
+  // randRange bounds
+  i = 0;
+  range_ok: bool = true;
+  min_seen: i32 = 1000;
+  max_seen: i32 = -1000;
+  while (i < 2000) {
+    v: i32 = randRange(50, 60);
+    if (v < 50 || v >= 60) {
+      range_ok = false;
+    }
+    if (v < min_seen) {
+      min_seen = v;
+    }
+    if (v > max_seen) {
+      max_seen = v;
+    }
+    i = i + 1;
+  }
+  checkBool("randRange stays in [50,60) over 2000 draws", range_ok, true);
+  checkInt("randRange reaches lower bound", min_seen, 50);
+  checkInt("randRange reaches near upper bound", max_seen, 59);
+  checkInt("randRange(max<=min) returns min", randRange(10, 10), 10);
+  checkInt("randRange(max<min) returns min", randRange(10, 5), 10);
+
+  // randFloat bounds
+  i = 0;
+  float_ok: bool = true;
+  while (i < 2000) {
+    f: f64 = randFloat();
+    if (f < 0.0 || f >= 1.0) {
+      float_ok = false;
+    }
+    i = i + 1;
+  }
+  checkBool("randFloat stays in [0,1) over 2000 draws", float_ok, true);
+
+  // randFloatRange bounds
+  i = 0;
+  frange_ok: bool = true;
+  while (i < 2000) {
+    f: f64 = randFloatRange(10.0, 20.0);
+    if (f < 10.0 || f >= 20.0) {
+      frange_ok = false;
+    }
+    i = i + 1;
+  }
+  checkBool("randFloatRange stays in [10,20) over 2000 draws", frange_ok, true);
+  checkF64("randFloatRange(max<=min) returns min", randFloatRange(5.0, 5.0), 5.0,
+          0.0001);
+
+  return printSummary("random");
+}
