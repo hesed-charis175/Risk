@@ -1,0 +1,9 @@
+extern "__os_headers__/__sys__.h" {
+  func sysPlatform() -> string; 
+  func sysArch() -> string;    
+  func sysHostname() -> string;
+  func sysUsername() -> string;
+  func sysCwd() -> string;    
+  func sysEnv(name: string) -> string;
+  func sysPid() -> i64;      
+}

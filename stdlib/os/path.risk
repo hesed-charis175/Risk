@@ -1,0 +1,133 @@
+import "@core/string.risk";
+
+extern "__os_headers__/__path__.h" {
+  func pathSeparator() -> string;
+  func pathAbsolute(path: string) -> string;
+}
+
+PATH_DOT_CODE: const i32 = 46;  
+PATH_COLON_CODE: const i32 = 58; 
+
+func pathCharCode(s: string, i: i32) -> i32 {
+  return charToInt(strCharAt(s, i));
+}
+
+func pathIsSepAt(s: string, i: i32) -> bool {
+  code: i32 = pathCharCode(s, i);
+  return code == 47 || code == 92;
+}
+
+func pathSlice(s: string, start: i32, end: i32) -> string {
+  result: string = "";
+  i: i32 = start;
+  while (i < end) {
+    result = strConcat(result, intToChar(pathCharCode(s, i)));
+    i = i + 1;
+  }
+  return result;
+}
+
+func pathIsAbsolute(path: string) -> bool {
+  n: i32 = strLength(path);
+  if (n == 0) {
+    return false;
+  }
+  if (pathIsSepAt(path, 0)) {
+    return true;
+  }
+  if (n >= 2 && pathCharCode(path, 1) == PATH_COLON_CODE) {
+    return true;
+  }
+  return false;
+}
+
+func pathJoin(a: string, b: string) -> string {
+  if (strLength(a) == 0) {
+    return b;
+  }
+  if (strLength(b) == 0) {
+    return a;
+  }
+
+  left: string = a;
+  leftLen: i32 = strLength(left);
+  if (pathIsSepAt(left, leftLen - 1)) {
+    left = pathSlice(left, 0, leftLen - 1);
+  }
+
+  right: string = b;
+  rightStart: i32 = 0;
+  if (pathIsSepAt(right, 0)) {
+    rightStart = 1;
+  }
+  right = pathSlice(right, rightStart, strLength(right));
+
+  return strConcat(strConcat(left, pathSeparator()), right);
+}
+
+func pathBase(path: string) -> string {
+  n: i32 = strLength(path);
+  if (n == 0) {
+    return path;
+  }
+
+  end: i32 = n;
+  while (end > 0 && pathIsSepAt(path, end - 1)) {
+    end = end - 1;
+  }
+  if (end == 0) {
+    return pathSeparator();
+  }
+
+  start: i32 = end - 1;
+  while (start > 0 && !pathIsSepAt(path, start - 1)) {
+    start = start - 1;
+  }
+
+  return pathSlice(path, start, end);
+}
+
+func pathDir(path: string) -> string {
+  n: i32 = strLength(path);
+  if (n == 0) {
+    return ".";
+  }
+
+  end: i32 = n;
+  while (end > 0 && pathIsSepAt(path, end - 1)) {
+    end = end - 1;
+  }
+  if (end == 0) {
+    return pathSeparator();
+  }
+
+  i: i32 = end;
+  while (i > 0 && !pathIsSepAt(path, i - 1)) {
+    i = i - 1;
+  }
+  if (i == 0) {
+    return ".";
+  }
+
+  while (i > 0 && pathIsSepAt(path, i - 1)) {
+    i = i - 1;
+  }
+  if (i == 0) {
+    return pathSeparator();
+  }
+
+  return pathSlice(path, 0, i);
+}
+
+func pathExt(path: string) -> string {
+  base: string = pathBase(path);
+  n: i32 = strLength(base);
+  i: i32 = n - 1;
+  while (i > 0) {
+    if (pathCharCode(base, i) == PATH_DOT_CODE) {
+      return pathSlice(base, i, n);
+    }
+    i = i - 1;
+  }
+  return "";
+}

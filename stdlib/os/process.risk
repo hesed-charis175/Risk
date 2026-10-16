@@ -1,0 +1,7 @@
+extern "__os_headers__/__process__.h" {
+  func procExit(code: i32);             
+  func procSleepMs(ms: i64);
+  func procSystem(cmd: string) -> i32; 
+  func procSetEnv(name: string, value: string) -> bool;
+  func procUnsetEnv(name: string) -> bool;
+}
