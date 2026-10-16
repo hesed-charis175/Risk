@@ -1,0 +1,17 @@
+generic _Float = [f32, f64];
+
+block Vec<T: _Float, const N: i32> {
+  data: Array<T, N>;
+  len: i32 = N;
+}
+
+func main() -> i32 {
+  a: Vec<f32, 3>;
+  b: Vec<f32, 3>;  
+  c: Vec<f64, 3>; 
+  d: Vec<f32, 4>;
+
+  b = a;            
+
+  return 0;
+}

@@ -1,0 +1,14 @@
+generic _Float = [f32, f64];
+
+block Grid<T: _Float, const N: i32> {
+  width: i32 = N;
+  height: i32 = N;
+  cell: T;
+}
+
+func main() -> i32 {
+  g: Grid<f32, 5>;
+  g.cell = 1.0;
+  total: i32 = g.width * g.height;
+  return total;
+}

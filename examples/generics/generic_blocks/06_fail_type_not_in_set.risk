@@ -1,0 +1,11 @@
+generic _Float = [f32, f64];
+
+block Buffer<T: _Float, const N: i32> {
+  data: Array<T, N>;
+  size: i32 = N;
+}
+
+func main() -> i32 {
+  b: Buffer<i32, 4>;  
+  return 0;
+}

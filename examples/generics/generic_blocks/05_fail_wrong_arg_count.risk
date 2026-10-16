@@ -1,0 +1,18 @@
+opts Order {
+  RowMajor,
+  ColMajor,
+}
+
+generic _Float = [f32, f64];
+
+block Matrix<T: _Float, H: Order, C: i32, R: i32> {
+  data: ptr<T>;
+  cols: i32 = C;
+  rows: i32 = R;
+  order: Order = H;
+}
+
+func main() -> i32 {
+  a: Matrix<f32, Order.RowMajor, 4>;
+  return 0;
+}
