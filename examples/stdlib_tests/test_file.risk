@@ -1,0 +1,73 @@
+import "test_helpers.risk";
+
+func main() -> i32 {
+  ioPrintln("=== file ===");
+
+  base: string = "/tmp/risk_test_file_";
+  data_path: string = strConcat(base, "data.txt");
+  copy_path: string = strConcat(base, "copy.txt");
+  lines_path: string = strConcat(base, "lines.txt");
+  empty_path: string = strConcat(base, "empty.txt");
+  nonl_path: string = strConcat(base, "nonl.txt");
+  blank_path: string = strConcat(base, "blank.txt");
+  missing_path: string = strConcat(base, "does_not_exist.txt");
+  bytes_path: string = strConcat(base, "bytes.bin");
+
+  checkBool("fioWrite", fioWrite(data_path, "hello world"), true);
+  checkBool("fioExists after write", fioExists(data_path), true);
+  checkStr("fioRead", fioRead(data_path), "hello world");
+  checkI64("fioSize", fioSize(data_path), 11);
+
+  checkBool("fioAppend", fioAppend(data_path, "!!!"), true);
+  checkStr("fioRead after append", fioRead(data_path), "hello world!!!");
+
+  checkBool("fioCopy", fioCopy(data_path, copy_path), true);
+  checkStr("fioRead of copy", fioRead(copy_path), "hello world!!!");
+
+  lines_out: Array<string> = ["alpha", "beta", "gamma"];
+  checkBool("fioBufWrite", fioBufWrite(lines_path, lines_out), true);
+  lines_in: Array<string> = fioBufRead(lines_path);
+  checkInt("fioBufRead count", length(lines_in), 3);
+  checkStr("fioBufRead[0]", lines_in[0], "alpha");
+  checkStr("fioBufRead[1]", lines_in[1], "beta");
+  checkStr("fioBufRead[2]", lines_in[2], "gamma");
+
+  fioWrite(empty_path, "");
+  empty_lines: Array<string> = fioBufRead(empty_path);
+  checkInt("fioBufRead empty file", length(empty_lines), 0);
+
+  fioWrite(nonl_path, "onlyoneline");
+  nonl_lines: Array<string> = fioBufRead(nonl_path);
+  checkInt("fioBufRead no trailing newline count", length(nonl_lines), 1);
+  checkStr("fioBufRead no trailing newline value", nonl_lines[0], "onlyoneline");
+
+  fioWrite(blank_path, "\n");
+  blank_lines: Array<string> = fioBufRead(blank_path);
+  checkInt("fioBufRead single blank line", length(blank_lines), 1);
+
+  neg_one: i64 = -1;
+  checkI64("fioSize missing file", fioSize(missing_path), neg_one);
+  checkBool("fioExists missing file", fioExists(missing_path), false);
+
+  buf: Array<u8, 5> = [72, 101, 108, 108, 111];
+  n: i64 = fioBytesWrite(bytes_path, cast<ptr<void>>(&buf), 5);
+  checkI64("fioBytesWrite count", n, 5);
+
+  read_buf: Array<u8, 5> = [0, 0, 0, 0, 0];
+  m: i64 = fioBytesRead(bytes_path, cast<ptr<void>>(&read_buf), 5);
+  checkI64("fioBytesRead count", m, 5);
+  checkInt("fioBytesRead[0]", cast<i32>(read_buf[0]), 72);
+  checkInt("fioBytesRead[4]", cast<i32>(read_buf[4]), 111);
+
+  checkBool("fioDelete data", fioDelete(data_path), true);
+  checkBool("fioExists after delete", fioExists(data_path), false);
+
+  fioDelete(copy_path);
+  fioDelete(lines_path);
+  fioDelete(empty_path);
+  fioDelete(nonl_path);
+  fioDelete(blank_path);
+  fioDelete(bytes_path);
+
+  return printSummary("file");
+}
