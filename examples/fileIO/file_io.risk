@@ -1,0 +1,32 @@
+import "@core";
+
+func main() -> i32 {
+	if(fioWrite("hello.txt", "Hello from Risk!")) {
+		content: string = fioRead("hello.txt");
+		ioPrintln(content);
+	}
+	fioAppend("demo.risk", "Second Entry here!");
+	fioAppend("log.txt", "Third Entry here!");
+
+	ioPrintln(fioRead("log.txt"));
+
+	if(fioExists("log.txt")) {
+		ioPrintln("log.txt exists");
+	} else { ioPrintln("log.txt DNE "); }
+
+	size: i64 = fioSize("log.txt");
+	ioPrintln("log.txt size: ", size, "bytes");
+	
+	fioCopy("log.txt", "log_back.txt");
+	ioPrintln("copied!");
+
+	lines: Array<string> = fioBufRead("log.txt");
+	ioPrintln(lines.repr(false));
+	
+	if(fioDelete("hello.txt")) {
+		ioPrintln("deleted!");
+	}
+
+	
+	return 0;
+}
