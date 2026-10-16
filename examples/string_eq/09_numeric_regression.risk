@@ -1,0 +1,16 @@
+func main() -> i32 {
+  x: i32 = 7;
+  y: i32 = 7;
+  z: i32 = 8;
+  if (x == y) {
+    ioPrintln("PASS_numeric_eq");
+  } else {
+    ioPrintln("FAIL_numeric_eq");
+  }
+  if (x != z) {
+    ioPrintln("PASS_numeric_neq");
+  } else {
+    ioPrintln("FAIL_numeric_neq");
+  }
+  return 0;
+}

@@ -1,0 +1,9 @@
+func main() -> i32 {
+  cmd: string = ioInput();
+  if (cmd == "quit") {
+    ioPrintln("PASS_ioinput_equal");
+  } else {
+    ioPrintln("FAIL_ioinput_equal");
+  }
+  return 0;
+}

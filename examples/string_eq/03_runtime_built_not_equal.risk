@@ -1,0 +1,14 @@
+func makeHellx() -> string {
+  return strRepeat("hellx", 1);
+}
+
+func main() -> i32 {
+  a: string = "hello";
+  b: string = makeHellx();
+  if (a == b) {
+    ioPrintln("FAIL_should_not_be_equal");
+  } else {
+    ioPrintln("PASS_correctly_not_equal");
+  }
+  return 0;
+}

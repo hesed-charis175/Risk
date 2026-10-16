@@ -1,0 +1,16 @@
+func main() -> i32 {
+  a: bool = true;
+  b: bool = true;
+  c: bool = false;
+  if (a == b) {
+    ioPrintln("PASS_bool_eq");
+  } else {
+    ioPrintln("FAIL_bool_eq");
+  }
+  if (a != c) {
+    ioPrintln("PASS_bool_neq");
+  } else {
+    ioPrintln("FAIL_bool_neq");
+  }
+  return 0;
+}

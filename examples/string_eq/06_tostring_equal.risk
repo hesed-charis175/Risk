@@ -1,0 +1,12 @@
+func main() -> i32 {
+  x: i32 = 42;
+  y: i32 = 42;
+  sx: string = toString(x);
+  sy: string = toString(y);
+  if (sx == sy) {
+    ioPrintln("PASS_tostring_equal");
+  } else {
+    ioPrintln("FAIL_tostring_equal");
+  }
+  return 0;
+}

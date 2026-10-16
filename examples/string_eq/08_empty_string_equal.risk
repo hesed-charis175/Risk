@@ -1,0 +1,14 @@
+func makeEmpty() -> string {
+  return strRepeat("x", 0);
+}
+
+func main() -> i32 {
+  a: string = "";
+  b: string = makeEmpty();
+  if (a == b) {
+    ioPrintln("PASS_empty_equal");
+  } else {
+    ioPrintln("FAIL_empty_equal");
+  }
+  return 0;
+}

@@ -1,0 +1,14 @@
+func makeHello() -> string {
+  return strRepeat("hello", 1);
+}
+
+func main() -> i32 {
+  a: string = "hello";
+  b: string = makeHello();
+  if (a == b) {
+    ioPrintln("PASS_runtime_equal");
+  } else {
+    ioPrintln("FAIL_runtime_equal");
+  }
+  return 0;
+}

@@ -1,0 +1,14 @@
+func makeWorld() -> string {
+  return strRepeat("world", 1);
+}
+
+func main() -> i32 {
+  a: string = "hello";
+  b: string = makeWorld();
+  if (a != b) {
+    ioPrintln("PASS_neq_correctly_true");
+  } else {
+    ioPrintln("FAIL_neq_should_be_true");
+  }
+  return 0;
+}

@@ -1,0 +1,16 @@
+func main() -> i32 {
+  count: i32 = 0;
+  while (true) {
+    line: string = ioInput();
+    if (line == "quit") {
+      ioPrintln("PASS_loop_saw_quit");
+      return 0;
+    }
+    count = count + 1;
+    if (count > 10) {
+      ioPrintln("FAIL_loop_never_matched");
+      return 0;
+    }
+  }
+  return 0;
+}

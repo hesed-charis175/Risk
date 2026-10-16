@@ -1,0 +1,18 @@
+func isHello(s: string) -> bool {
+  return s == "hello";
+}
+
+func main() -> i32 {
+  built: string = strRepeat("hello", 1);
+  if (isHello(built)) {
+    ioPrintln("PASS_param_equal");
+  } else {
+    ioPrintln("FAIL_param_equal");
+  }
+  if (isHello("nope")) {
+    ioPrintln("FAIL_param_should_not_match");
+  } else {
+    ioPrintln("PASS_param_correctly_rejects");
+  }
+  return 0;
+}
