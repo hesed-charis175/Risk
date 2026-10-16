@@ -1,0 +1,5 @@
+func main() -> i32 {
+	a: Array<i32, 4> = [1, 2, 3, 4];
+	ioPrintln(a.repr());
+	return 0;
+}
