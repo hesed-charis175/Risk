@@ -1,0 +1,11 @@
+block Plain {
+  x: i32;
+  y: i32;
+}
+
+func main() -> i32 {
+  a: Plain;
+  a.x = 5;
+  a.y = 7;
+  return a.x + a.y;
+}

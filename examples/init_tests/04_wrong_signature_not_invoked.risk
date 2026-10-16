@@ -1,0 +1,15 @@
+count: i32 = 0;
+
+func bump_by(p: Counter, amount: i32) -> void {
+  count = count + amount;
+}
+
+block Counter {
+  n: i32;
+  init: func(this, i32) -> void = bump_by;  
+}
+
+func main() -> i32 {
+  a: Counter;
+  return count;
+}

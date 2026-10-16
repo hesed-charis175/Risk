@@ -1,0 +1,17 @@
+count: i32 = 0;
+
+func mark_init(p: Person) -> void {
+  count = count + 1;
+}
+
+block Person {
+  name: string;
+  init: func(this) -> void = mark_init;
+}
+
+func main() -> i32 {
+  a: Person;  
+  b: Person;  
+  a.init();  
+  return count;
+}

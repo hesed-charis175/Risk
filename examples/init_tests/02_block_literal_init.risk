@@ -1,0 +1,19 @@
+count: i32 = 0;
+
+func mark_init(p: Widget) -> void {
+  count = count + 1;
+}
+
+block Widget {
+  label: string;
+  size: i32;
+  init: func(this) -> void = mark_init;
+}
+
+func main() -> i32 {
+  a: Widget = { label = "a", size = 1 };
+  b: Widget = { label = "b", size = 2 };
+  ioPrintln("Something is off then, ", count);
+  return 0;
+
+}
