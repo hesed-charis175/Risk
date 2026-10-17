@@ -6,7 +6,7 @@
 
 - `src/`: Contains all compiler source files, including the lexer, parser, type checker, code generator, and compilation driver.
 - `CMakeLists.txt`: The primary CMake configuration file for building the project.
-- `documentation/`: Developer guides and internal architecture references.
+- `ARCHITECTURE.md`: Developer guides and internal architecture references.
 - `examples/`: Sample Risk programs and feature demonstrations.
 - `manual/`: The language manual and syntax reference.
 - `stdlib/`: Standard library modules written for Risk.
