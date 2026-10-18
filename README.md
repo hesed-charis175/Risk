@@ -1,5 +1,8 @@
-# Risk Compiler (`riskc`)
+# Risk
 
+<p align="center">
+<img width="553" height="669" alt="risk-fox" src="https://github.com/user-attachments/assets/794d7da6-de33-4365-9c99-0b4742cec41e" />
+</p>
 `riskc` is a single-pass, sequential compiler for Risk, a statically typed programming language that lowers to C99 and delegates final machine code generation to GCC.
 
 ## Repository Structure
