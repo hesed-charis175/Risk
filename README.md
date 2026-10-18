@@ -14,6 +14,8 @@
 
 **Risk** is a statically typed programming language that lowers to C99 and delegates final machine code generation to GCC. `riskc`, its compiler, is single-pass and sequential.
 
+> **Platform support:** Risk currently supports **Linux only** (x86_64 for prebuilt releases). macOS and Windows are not supported yet. On Windows, you can use it through [WSL](https://learn.microsoft.com/windows/wsl/).
+
 ## Hello, Risk
 
 ```risk
@@ -34,7 +36,7 @@ func main() -> i32 {
 
 ## Installation
 
-Risk currently supports Linux. Clone the repository and run the install script:
+Risk is Linux only for now. Clone the repository and run the install script:
 
 ```bash
 git clone https://github.com/hesed-charis175/Risk.git
