@@ -5,9 +5,9 @@
 #   ./build.sh uninstall    remove everything this script installed
 #
 # Optional environment variables:
-#   INSTALL_DIR      where riskc is copied (by default: /usr/local/bin,
+#   INSTALL_DIR      where riskc is copied (default: /usr/local/bin,
 #                    or ~/.local/bin when sudo is not available)
-#   RISK_STDLIB_DIR  where standard library goes (default: ~/.risk/lib)
+#   RISK_STDLIB_DIR  where the standard library goes (default: ~/.risk/lib)
 #
 # Log legend:  [~] info   [+] passed   [!] warning   [x] failed
 
@@ -36,7 +36,6 @@ ok()   { echo -e "${GREEN}[+]${RESET} $1"; }
 warn() { echo -e "${YELLOW}[!]${RESET} $1"; }
 fail() { echo -e "${RED}[x]${RESET} $1" >&2; exit 1; }
 
-# bar_string PERCENT  ->  [=========>          ]
 bar_string() {
   local pct=$1 width=30 filled i out=""
   filled=$(( pct * width / 100 ))
@@ -49,7 +48,6 @@ bar_string() {
   printf '[%s]' "$out"
 }
 
-# live single-line bar used while building
 draw_bar() {
   printf "\r\033[K${BOLD}[~]${RESET} %s %3d%% %s" "$(bar_string "$1")" "$1" "$2"
 }
@@ -176,8 +174,17 @@ if [ "$build_rc" -ne 0 ]; then
   tail -n 20 "$LOG" >&2
   fail "Build failed (full log: $LOG)"
 fi
-[ -f "$BUILD_DIR/$BINARY_NAME" ] || fail "Build finished but $BUILD_DIR/$BINARY_NAME was not produced."
-ok "Built $BUILD_DIR/$BINARY_NAME"
+BUILT_BIN="$BUILD_DIR/$BINARY_NAME"
+if [ ! -f "$BUILT_BIN" ]; then
+  # CMake may place the executable in a subfolder (e.g. bin/), so search for it
+  BUILT_BIN="$(find "$BUILD_DIR" -type f -name "$BINARY_NAME" -perm -u+x -not -path '*/CMakeFiles/*' 2>/dev/null | head -n 1)"
+fi
+if [ -z "$BUILT_BIN" ] || [ ! -f "$BUILT_BIN" ]; then
+  warn "Executables found in $BUILD_DIR:"
+  find "$BUILD_DIR" -type f -perm -u+x -not -path '*/CMakeFiles/*' 2>/dev/null | head -n 10 | sed 's/^/      /' >&2
+  fail "Build finished but no '$BINARY_NAME' executable was produced. Check the target name in CMakeLists.txt (log: $LOG)"
+fi
+ok "Built $BUILT_BIN"
 advance
 
 # ---------------------------------------------------------------- 3. install binary
@@ -186,9 +193,9 @@ if ! mkdir -p "$INSTALL_DIR" 2>/dev/null; then
   $SUDO mkdir -p "$INSTALL_DIR" || fail "Cannot create $INSTALL_DIR."
 fi
 if [ -w "$INSTALL_DIR" ]; then
-  install -m 755 "$BUILD_DIR/$BINARY_NAME" "$INSTALL_DIR/$BINARY_NAME"
+  install -m 755 "$BUILT_BIN" "$INSTALL_DIR/$BINARY_NAME"
 else
-  $SUDO install -m 755 "$BUILD_DIR/$BINARY_NAME" "$INSTALL_DIR/$BINARY_NAME" \
+  $SUDO install -m 755 "$BUILT_BIN" "$INSTALL_DIR/$BINARY_NAME" \
     || fail "Failed to install the binary. Do you have sudo access?"
 fi
 ok "riskc installed to $INSTALL_DIR/$BINARY_NAME"

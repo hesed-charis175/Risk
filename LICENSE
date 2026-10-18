@@ -1,0 +1,68 @@
+Risk Free Use License (Source-Available)
+
+Copyright (c) 2026 Bayiha Hesed Charis. All rights reserved.
+
+This license applies to the Risk programming language, including the riskc
+compiler, its source code, its standard library, its documentation, and any
+released binaries (together, the "Software").
+
+1. PERMISSION TO USE
+
+   You may download, clone, build, install, and run the Software, for any
+   purpose, including commercial use, at no charge. You may make the copies
+   necessary to do so on computers you own or control, and reasonable backup
+   copies.
+
+2. YOUR PROGRAMS AND THEIR OUTPUT
+
+   Programs you write in Risk, and the executables and C source produced by
+   running riskc on them, belong to you. You may use, license, and distribute
+   them under any terms you choose, including closed-source and commercial
+   terms. This includes the parts of the Risk standard library and runtime
+   that are compiled into or linked with those executables.
+
+3. RESTRICTIONS
+
+   Except as expressly allowed in this license, you may not:
+
+   (a) modify, adapt, translate, or create derivative works of the Software;
+   (b) distribute, publish, sublicense, sell, lend, or otherwise make the
+       Software, or any copy or portion of it, available to others;
+   (c) remove or alter any copyright or license notice in the Software.
+
+   Section 2 is not restricted by this section.
+
+4. GITHUB
+
+   If the Software is hosted on GitHub, GitHub's Terms of Service allow
+   viewing and forking it within the GitHub platform. Nothing in this license
+   limits those rights.
+
+5. CONTRIBUTIONS
+
+   If you submit a contribution (for example, a pull request or a patch) to
+   the copyright holder, you grant the copyright holder a perpetual,
+   worldwide, royalty-free, irrevocable license to use, modify, and
+   distribute it as part of the Software, under this or any other license.
+
+6. RESERVED RIGHTS
+
+   All rights not expressly granted are reserved by the copyright holder.
+
+7. TERMINATION
+
+   This license ends automatically if you breach it. On termination you must
+   stop using the Software and delete your copies. Section 2 continues to
+   apply to programs and output you created before termination.
+
+8. NO WARRANTY
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+   PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+9. LIMITATION OF LIABILITY
+
+   IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE,
+   ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
