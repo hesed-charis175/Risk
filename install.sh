@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Install the Risk compiler (riskc) and standard library from the latest GitHub release.
+# Install the Risk compiler (riskc), language server (risk-lsp) and standard library
+# from the latest GitHub release.
 #
 #   curl -fsSL https://raw.githubusercontent.com/hesed-charis175/Risk/main/install.sh | bash
 #
@@ -19,7 +20,9 @@ set -euo pipefail
 REPO="hesed-charis175/Risk"
 VERSION="${RISK_VERSION:-latest}"
 BINARY_NAME="riskc"
+LSP_NAME="risk-lsp"
 BIN_ARCHIVE="riskc-linux-x86_64.tar.gz"
+LSP_ARCHIVE="risk-lsp-linux-x86_64.tar.gz"
 STD_ARCHIVE="risk-stdlib.tar.gz"
 STDLIB_DIR="${RISK_STDLIB_DIR:-$HOME/.risk/lib}"
 
@@ -107,6 +110,11 @@ if [ "${1:-}" = "uninstall" ]; then
   else
     warn "No binary found at $INSTALL_DIR/$BINARY_NAME"
   fi
+  if [ -e "$INSTALL_DIR/$LSP_NAME" ]; then
+    if [ -w "$INSTALL_DIR" ]; then rm -f "$INSTALL_DIR/$LSP_NAME"
+    else $SUDO rm -f "$INSTALL_DIR/$LSP_NAME"; fi
+    ok "Removed $INSTALL_DIR/$LSP_NAME"
+  fi
   if [ -d "$STDLIB_DIR" ]; then
     rm -rf "$STDLIB_DIR"
     rmdir "$(dirname "$STDLIB_DIR")" 2>/dev/null || true
@@ -170,6 +178,12 @@ download() {
 }
 download "$BIN_ARCHIVE"
 download "$STD_ARCHIVE"
+HAVE_LSP=0
+if curl -fsSL --retry 2 "$BASE_URL/$LSP_ARCHIVE" -o "$TMP_DIR/$LSP_ARCHIVE" 2>/dev/null; then
+  HAVE_LSP=1
+else
+  warn "This release has no $LSP_ARCHIVE, skipping the language server"
+fi
 if curl -fsSL --retry 2 "$BASE_URL/SHA256SUMS" -o "$TMP_DIR/SHA256SUMS" 2>/dev/null; then
   HAVE_SUMS=1
 else
@@ -182,7 +196,9 @@ advance
 info "Verifying checksums..."
 if [ "$HAVE_SUMS" = "1" ]; then
   : > "$TMP_DIR/check.txt"
-  for name in "$BIN_ARCHIVE" "$STD_ARCHIVE"; do
+  checked="$BIN_ARCHIVE $STD_ARCHIVE"
+  [ "$HAVE_LSP" = "1" ] && checked="$checked $LSP_ARCHIVE"
+  for name in $checked; do
     grep " $name\$" "$TMP_DIR/SHA256SUMS" >> "$TMP_DIR/check.txt" \
       || fail "$name is missing from SHA256SUMS."
   done
@@ -210,6 +226,20 @@ else
     || fail "Failed to install riskc. Do you have sudo access?"
 fi
 ok "riskc installed to $INSTALL_DIR/$BINARY_NAME"
+
+if [ "$HAVE_LSP" = "1" ]; then
+  mkdir -p "$TMP_DIR/lsp"
+  tar -xzf "$TMP_DIR/$LSP_ARCHIVE" -C "$TMP_DIR/lsp"
+  [ -f "$TMP_DIR/lsp/$LSP_NAME" ] || fail "The archive does not contain $LSP_NAME."
+  chmod +x "$TMP_DIR/lsp/$LSP_NAME"
+  if [ -w "$INSTALL_DIR" ]; then
+    install -m 755 "$TMP_DIR/lsp/$LSP_NAME" "$INSTALL_DIR/$LSP_NAME"
+  else
+    $SUDO install -m 755 "$TMP_DIR/lsp/$LSP_NAME" "$INSTALL_DIR/$LSP_NAME" \
+      || fail "Failed to install $LSP_NAME. Do you have sudo access?"
+  fi
+  ok "risk-lsp installed to $INSTALL_DIR/$LSP_NAME"
+fi
 advance
 
 # ---------------------------------------------------------------- 6. standard library

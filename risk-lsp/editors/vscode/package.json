@@ -1,0 +1,46 @@
+{
+  "name": "risk-lang",
+  "displayName": "Risk Language",
+  "description": "Language support for the Risk programming language, powered by risk-lsp",
+  "version": "0.1.0",
+  "publisher": "risk",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Programming Languages"],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "risk",
+        "aliases": ["Risk", "risk"],
+        "extensions": [".risk"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "risk",
+        "scopeName": "source.risk",
+        "path": "./syntaxes/risk.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "Risk",
+      "properties": {
+        "risk.serverPath": {
+          "type": "string",
+          "default": "risk-lsp",
+          "description": "Path to the risk-lsp executable."
+        },
+        "risk.stdlibPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the Risk standard library directory. Leave empty to use RISK_STDLIB, <workspace>/stdlib or ~/.risk/lib."
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  }
+}

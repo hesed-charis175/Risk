@@ -1,0 +1,85 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Risk",
+  "scopeName": "source.risk",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#declarations" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#constants" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.double-slash.risk", "match": "//.*$" },
+        { "name": "comment.block.risk", "begin": "/\\*", "end": "\\*/" }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.risk",
+          "begin": "\"", "end": "\"",
+          "patterns": [{ "name": "constant.character.escape.risk", "match": "\\\\." }]
+        },
+        {
+          "name": "string.quoted.single.risk",
+          "begin": "'", "end": "'",
+          "patterns": [{ "name": "constant.character.escape.risk", "match": "\\\\." }]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.hex.risk", "match": "\\b0[xX][0-9a-fA-F]+\\b" },
+        { "name": "constant.numeric.binary.risk", "match": "\\b0[bB][01]+\\b" },
+        { "name": "constant.numeric.float.risk", "match": "(\\b\\d+\\.\\d+\\b|(?<![\\w.])\\.\\d+\\b)" },
+        { "name": "constant.numeric.integer.risk", "match": "\\b\\d+\\b" }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "match": "\\b(func)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.declaration.function.risk" },
+            "2": { "name": "entity.name.function.risk" }
+          }
+        },
+        {
+          "match": "\\b(block|opts|generic|typealias)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.declaration.type.risk" },
+            "2": { "name": "entity.name.type.risk" }
+          }
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        { "name": "keyword.control.risk",
+          "match": "\\b(if|else|while|for|switch|case|default|break|continue|return|defer)\\b" },
+        { "name": "keyword.other.risk",
+          "match": "\\b(import|extern|lib|as|const|register|noalias|cast|unsafe_cast|sizeof|func|block|opts|generic|typealias)\\b" },
+        { "name": "variable.language.this.risk", "match": "\\bthis\\b" },
+        { "name": "keyword.other.header.risk", "match": "\\bHEADER_FILE\\b" }
+      ]
+    },
+    "types": {
+      "patterns": [
+        { "name": "support.type.primitive.risk",
+          "match": "\\b(i8|i16|i32|i64|u8|u16|u32|u64|f32|f64|bool|char|string|void)\\b" },
+        { "name": "support.type.container.risk",
+          "match": "\\b(Array|Hashmap|Arena|ptr|refc)\\b" }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        { "name": "constant.language.risk", "match": "\\b(true|false|null|INF|NAN)\\b" }
+      ]
+    }
+  }
+}

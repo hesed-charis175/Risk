@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Build and install the Risk compiler (riskc) from source.
+# Build and install the Risk compiler (riskc), the language server (risk-lsp)
+# and the standard library from source.
 #
-#   ./build.sh              build, install riskc and the standard library
+#   ./build.sh              build, install riskc, risk-lsp and the standard library
 #   ./build.sh uninstall    remove everything this script installed
 #
 # Optional environment variables:
-#   INSTALL_DIR      where riskc is copied (default: /usr/local/bin,
-#                    or ~/.local/bin when sudo is not available)
+#   INSTALL_DIR      where riskc and risk-lsp are copied (default:
+#                    /usr/local/bin, or ~/.local/bin when sudo is not available)
+#   SKIP_LSP=1       build and install only riskc, not the language server
 #   RISK_STDLIB_DIR  where the standard library goes (default: ~/.risk/lib)
 #
 # Log legend:  [~] info   [+] passed   [!] warning   [x] failed
@@ -14,10 +16,16 @@
 set -euo pipefail
 
 BINARY_NAME="riskc"
+LSP_NAME="risk-lsp"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="$SCRIPT_DIR/build"
 STDLIB_SRC="$SCRIPT_DIR/stdlib"
 STDLIB_DIR="${RISK_STDLIB_DIR:-$HOME/.risk/lib}"
+
+BUILD_LSP=0
+if [ "${SKIP_LSP:-0}" != "1" ] && [ -f "$SCRIPT_DIR/risk-lsp/CMakeLists.txt" ]; then
+  BUILD_LSP=1
+fi
 
 MARK_START="# >>> risk >>>"
 MARK_END="# <<< risk <<<"
@@ -95,6 +103,11 @@ if [ "${1:-}" = "uninstall" ]; then
   else
     warn "No binary found at $INSTALL_DIR/$BINARY_NAME"
   fi
+  if [ -e "$INSTALL_DIR/$LSP_NAME" ]; then
+    if [ -w "$INSTALL_DIR" ]; then rm -f "$INSTALL_DIR/$LSP_NAME"
+    else $SUDO rm -f "$INSTALL_DIR/$LSP_NAME"; fi
+    ok "Removed $INSTALL_DIR/$LSP_NAME"
+  fi
   if [ -d "$STDLIB_DIR" ]; then
     rm -rf "$STDLIB_DIR"
     rmdir "$(dirname "$STDLIB_DIR")" 2>/dev/null || true
@@ -149,12 +162,17 @@ ok "Dependencies ready (gcc $(gcc -dumpversion), cmake $CMAKE_VER)"
 advance
 
 # ---------------------------------------------------------------- 2. build
-info "Building riskc..."
+if [ "$BUILD_LSP" = "1" ]; then
+  info "Building riskc and risk-lsp..."
+else
+  info "Building riskc..."
+fi
 mkdir -p "$BUILD_DIR"
 LOG="$BUILD_DIR/build.log"
 : > "$LOG"
 
-if ! cmake -S "$SCRIPT_DIR" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Release >> "$LOG" 2>&1; then
+LSP_FLAG="OFF"; [ "$BUILD_LSP" = "1" ] && LSP_FLAG="ON"
+if ! cmake -S "$SCRIPT_DIR" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Release -DRISK_BUILD_LSP="$LSP_FLAG" >> "$LOG" 2>&1; then
   tail -n 20 "$LOG" >&2
   fail "CMake configuration failed (full log: $LOG)"
 fi
@@ -174,31 +192,52 @@ if [ "$build_rc" -ne 0 ]; then
   tail -n 20 "$LOG" >&2
   fail "Build failed (full log: $LOG)"
 fi
-BUILT_BIN="$BUILD_DIR/$BINARY_NAME"
-if [ ! -f "$BUILT_BIN" ]; then
-  # CMake may place the executable in a subfolder (e.g. bin/), so search for it
-  BUILT_BIN="$(find "$BUILD_DIR" -type f -name "$BINARY_NAME" -perm -u+x -not -path '*/CMakeFiles/*' 2>/dev/null | head -n 1)"
-fi
+# CMake may place executables in a subfolder (e.g. bin/), so search for them
+find_built() {
+  local name="$1" path="$BUILD_DIR/$1"
+  if [ ! -f "$path" ]; then
+    path="$(find "$BUILD_DIR" -type f -name "$name" -perm -u+x -not -path '*/CMakeFiles/*' 2>/dev/null | head -n 1)"
+  fi
+  printf '%s' "$path"
+}
+
+BUILT_BIN="$(find_built "$BINARY_NAME")"
 if [ -z "$BUILT_BIN" ] || [ ! -f "$BUILT_BIN" ]; then
   warn "Executables found in $BUILD_DIR:"
   find "$BUILD_DIR" -type f -perm -u+x -not -path '*/CMakeFiles/*' 2>/dev/null | head -n 10 | sed 's/^/      /' >&2
   fail "Build finished but no '$BINARY_NAME' executable was produced. Check the target name in CMakeLists.txt (log: $LOG)"
 fi
+BUILT_LSP=""
+if [ "$BUILD_LSP" = "1" ]; then
+  BUILT_LSP="$(find_built "$LSP_NAME")"
+  if [ -z "$BUILT_LSP" ] || [ ! -f "$BUILT_LSP" ]; then
+    fail "Build finished but no '$LSP_NAME' executable was produced (log: $LOG). Re-run with SKIP_LSP=1 to install only riskc."
+  fi
+fi
 ok "Built $BUILT_BIN"
+[ -n "$BUILT_LSP" ] && ok "Built $BUILT_LSP"
 advance
 
 # ---------------------------------------------------------------- 3. install binary
-info "Installing to $INSTALL_DIR/$BINARY_NAME..."
+info "Installing to $INSTALL_DIR..."
 if ! mkdir -p "$INSTALL_DIR" 2>/dev/null; then
   $SUDO mkdir -p "$INSTALL_DIR" || fail "Cannot create $INSTALL_DIR."
 fi
-if [ -w "$INSTALL_DIR" ]; then
-  install -m 755 "$BUILT_BIN" "$INSTALL_DIR/$BINARY_NAME"
-else
-  $SUDO install -m 755 "$BUILT_BIN" "$INSTALL_DIR/$BINARY_NAME" \
-    || fail "Failed to install the binary. Do you have sudo access?"
-fi
+install_bin() {
+  local src="$1" name="$2"
+  if [ -w "$INSTALL_DIR" ]; then
+    install -m 755 "$src" "$INSTALL_DIR/$name"
+  else
+    $SUDO install -m 755 "$src" "$INSTALL_DIR/$name" \
+      || fail "Failed to install $name. Do you have sudo access?"
+  fi
+}
+install_bin "$BUILT_BIN" "$BINARY_NAME"
 ok "riskc installed to $INSTALL_DIR/$BINARY_NAME"
+if [ -n "$BUILT_LSP" ]; then
+  install_bin "$BUILT_LSP" "$LSP_NAME"
+  ok "risk-lsp installed to $INSTALL_DIR/$LSP_NAME"
+fi
 advance
 
 # ---------------------------------------------------------------- 4. stdlib files
@@ -265,5 +304,10 @@ echo ""
 echo "    Open a new terminal (or run: source ~/.profile), then try:"
 echo "      riskc main.risk -o app"
 echo ""
+if [ -n "$BUILT_LSP" ]; then
+  echo "    Editor support: point your editor at the language server '$LSP_NAME'"
+  echo "    (see risk-lsp/README.md for Neovim and VS Code setup)."
+  echo ""
+fi
 echo "    To uninstall later: ./build.sh uninstall"
 echo ""

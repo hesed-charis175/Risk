@@ -18,3 +18,9 @@ add_executable(riskc
     src/codegen.cpp
 )
 target_include_directories(riskc PRIVATE src)
+
+# LSP (risk-lsp/). You can configure with -DRISK_BUILD_LSP=OFF to skip it.
+option(RISK_BUILD_LSP "Build the risk-lsp language server" ON)
+if(RISK_BUILD_LSP AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/risk-lsp/CMakeLists.txt")
+  add_subdirectory(risk-lsp)
+endif()
