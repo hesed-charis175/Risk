@@ -197,6 +197,25 @@ static inline void risk_strbuf_append(risk_strbuf_t *sb, const char *s) {
 
 static inline char *risk_strbuf_finish(risk_strbuf_t *sb) { return sb->data; }
 
+/* ---- runtime float print formatting (default "%g") ---- */
+static char risk_float_fmt[16] = "%g";
+
+static inline void risk_set_float_precision(int digits) {
+  if (digits < 1) digits = 1;
+  if (digits > 17) digits = 17;
+  snprintf(risk_float_fmt, sizeof(risk_float_fmt), "%%.%dg", digits);
+}
+
+static inline void risk_set_float_fixed(int decimals) {
+  if (decimals < 0) decimals = 0;
+  if (decimals > 17) decimals = 17;
+  snprintf(risk_float_fmt, sizeof(risk_float_fmt), "%%.%df", decimals);
+}
+
+static inline void risk_reset_float_format(void) {
+  snprintf(risk_float_fmt, sizeof(risk_float_fmt), "%%g");
+}
+
 typedef struct {
   size_t refcount;
 
@@ -850,7 +869,7 @@ static inline int32_t risk_to_bool(const char *s) {
 static inline char *risk_to_str_float(double value) {
   char *buf = (char *)malloc(32);
   if (buf) {
-    snprintf(buf, 32, "%g", value);
+    snprintf(buf, 32, risk_float_fmt, value);
   }
   return buf;
 }

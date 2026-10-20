@@ -3252,6 +3252,8 @@ TypeInfo TypeChecker::type_of_expr(Expr *e) {
         }
       };
       scan(lam->body);
+      if (!inferred.empty() && !lam->return_type)
+        lam->return_type = type_node_from_canonical(inferred);
       sig += inferred.empty() ? "void" : inferred;
     }
     TypeInfo ti(sig);
@@ -3486,6 +3488,10 @@ static bool is_const_compatible_init(const std::string &decl,
   };
 
   std::string decl_inner = strip_const(decl);
+
+  // All integer types interconvert; f32/f64 interconvert (and ints <-> floats).
+  if (is_numeric_type_name(decl_inner) && is_numeric_type_name(strip_const(init)))
+    return true;
   if (decl_inner != decl) {
 
     if (is_const_compatible_init(decl_inner, init))
@@ -4174,6 +4180,10 @@ void TypeChecker::check_stmt(Stmt *s, const TypeInfo &expected_return) {
       if (rt != expected_return) {
         bool can_convert = false;
 
+        if (is_numeric_type_name(rt.name) &&
+            is_numeric_type_name(expected_return.name))
+          can_convert = true;
+
         if (rt.name == "i32" && can_convert_literal_to_unsigned(
                                     ret->expr.get(), expected_return.name)) {
 
@@ -4384,6 +4394,11 @@ bool TypeChecker::unify_generic_param(
     auto existing = bindings.find(gp.name);
     if (existing == bindings.end()) {
       bindings[gp.name] = bind_value;
+    } else if (existing->second != bind_value &&
+               !gp.is_value && is_numeric_type_name(existing->second) &&
+               is_numeric_type_name(bind_value)) {
+      // Numeric args interchange: widen the binding instead of erroring.
+      existing->second = promote_numeric_name(existing->second, bind_value);
     } else if (existing->second != bind_value) {
       err = "conflicting " + std::string(gp.is_value ? "values" : "types") +
             " inferred for generic parameter '" + gp.name + "' (" +
@@ -4768,6 +4783,17 @@ TypeInfo TypeChecker::resolve_generic_call(CallExpr *call, IdentifierExpr *id,
                        call->end_col ? call->end_col : call->col});
       return TypeInfo("__err__");
     }
+  }
+
+  // Extern (C) generics have no body to instantiate: keep the C symbol name
+  // and just compute the substituted return type.
+  if (tmpl->is_extern) {
+    TypeInfo ret("void");
+    if (tmpl->return_type) {
+      TypePtr rt = substitute_type(tmpl->return_type.get(), bindings);
+      ret = type_from_typenode(rt.get());
+    }
+    return ret;
   }
 
   std::string mangled = mangle_generic_instance(id->name, tmpl->generic_params, bindings);

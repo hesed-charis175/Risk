@@ -1,0 +1,19 @@
+import "@core/memory.risk";
+func main() -> i32 {
+    x: i32 = 5;
+    if (x > 0) {
+        x: f64 = 2.5;
+        ioPrintln("inner ", x);
+    }
+    ioPrintln("outer ", x);
+    for (i: u8 = 0; i < 2; i++) { ioPrintln("u8 ", i); }
+    for (i: f64 = 0.5; i < 2.0; i += 1.0) { ioPrintln("f64 ", i); }
+    p: ptr<i32> = cast<ptr<i32>>(alloc(4));
+    *p = 9;
+    if (x > 0) {
+        p: f64 = 1.25;
+        ioPrintln("shadow ptr ", p);
+    }
+    ioPrintln("ptr ", *p);
+    return 0;
+}

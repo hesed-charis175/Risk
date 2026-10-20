@@ -1,0 +1,15 @@
+import "@core";
+
+func main() -> i32 {
+    pi: f64 = 3.14159265358979;
+    ioPrintln("default:   ", pi);   // 3.14159
+    fmtFloatFixed(2);
+    ioPrintln("fixed 2:   ", pi);   // 3.14
+    fmtFloatFixed(8);
+    ioPrintln("fixed 8:   ", pi);   // 3.14159265
+    fmtFloatPrecision(10);
+    ioPrintln("prec 10:   ", pi);   // 3.141592654
+    fmtFloatReset();
+    ioPrintln("reset:     ", pi);   // 3.14159
+    return 0;
+}

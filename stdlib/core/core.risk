@@ -4,3 +4,4 @@ import "@core/file.risk";
 import "@core/random.risk";
 import "@core/time.risk";
 import "@core/memory.risk";
+import "@core/format.risk";

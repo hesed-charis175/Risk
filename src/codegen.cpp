@@ -151,8 +151,13 @@ void CodeGen::emit_top_level_func_names() {
   for (auto &dptr : tu->decls) {
     if (auto f = dynamic_cast<FuncDecl *>(dptr.get())) {
 
-      if (!f->generic_params.empty())
+      if (!f->generic_params.empty()) {
+        if (f->is_extern) {
+          top_level_funcs[f->name] = true;
+          extern_func_names.insert(f->name);
+        }
         continue;
+      }
       top_level_funcs[f->name] = true;
       if (f->is_extern)
         extern_func_names.insert(f->name);
@@ -2265,7 +2270,7 @@ void CodeGen::emit_stmt(std::ostream &os, Stmt *s, int indent) {
                  << bufname << ") - strlen(" << bufname << ") - 1);\n";
             } else if (atype == "f64" || atype == "f32") {
               os << ind << "char " << tmp << "[128]; snprintf(" << tmp
-                 << ", sizeof(" << tmp << "), \"%g\", (double)(";
+                 << ", sizeof(" << tmp << "), risk_float_fmt, (double)(";
               emit_expr_maybe_deref_when_read(
                   os, arg, current_param_types, current_local_var_types,
                   [&](std::ostream &o, Expr *ex) { emit_expr(o, ex); });
@@ -3424,9 +3429,23 @@ void CodeGen::emit_expr(std::ostream &os, Expr *e) {
         return;
       }
       if (id->name == "rcGet" && call->args.size() == 1) {
+        std::string cast_t;
+        if (expr_type_map) {
+          auto it = expr_type_map->find(call);
+          if (it != expr_type_map->end() &&
+              it->second.name.rfind("ptr<", 0) == 0) {
+            std::string inner = it->second.name.substr(
+                4, it->second.name.size() - 5);
+            if (!inner.empty() && inner != "void")
+              cast_t = ctype_from_type_name(inner) + "*";
+          }
+        }
+        os << "(";
+        if (!cast_t.empty())
+          os << "(" << cast_t << ")";
         os << "risk_rc_get(";
         emit_expr(os, call->args[0].get());
-        os << ")";
+        os << "))";
         return;
       }
       if (id->name == "rcCount" && call->args.size() == 1) {
@@ -3513,7 +3532,7 @@ void CodeGen::emit_expr(std::ostream &os, Expr *e) {
                << print_id << ") - strlen(" << print_id << ") - 1); }\n";
           } else if (arg_type == "f64" || arg_type == "f32") {
             os << "        { char " << fmt_id << "[64]; snprintf(" << fmt_id
-               << ", sizeof(" << fmt_id << "), \"%g\", (double)(";
+               << ", sizeof(" << fmt_id << "), risk_float_fmt, (double)(";
             emit_expr(os, arg);
             os << ")); strncat(" << print_id << ", " << fmt_id << ", sizeof("
                << print_id << ") - strlen(" << print_id << ") - 1); }\n";
@@ -3611,7 +3630,7 @@ void CodeGen::emit_expr(std::ostream &os, Expr *e) {
                << print_id << ") - strlen(" << print_id << ") - 1); }\n";
           } else if (arg_type == "f64" || arg_type == "f32") {
             os << "        { char " << fmt_id << "[64]; snprintf(" << fmt_id
-               << ", sizeof(" << fmt_id << "), \"%g\", (double)(";
+               << ", sizeof(" << fmt_id << "), risk_float_fmt, (double)(";
             emit_expr(os, arg);
             os << ")); strncat(" << print_id << ", " << fmt_id << ", sizeof("
                << print_id << ") - strlen(" << print_id << ") - 1); }\n";
@@ -3763,7 +3782,7 @@ void CodeGen::emit_expr(std::ostream &os, Expr *e) {
                << bufname << ") - strlen(" << bufname << ") - 1); ";
           } else if (atype == "f64" || atype == "f32") {
             os << "char " << tmp << "[128]; snprintf(" << tmp << ", sizeof("
-               << tmp << "), \"%g\", (double)(";
+               << tmp << "), risk_float_fmt, (double)(";
             emit_expr_maybe_deref_when_read(
                 os, arg, current_param_types, current_local_var_types,
                 [&](std::ostream &o, Expr *ex) { emit_expr(o, ex); });
@@ -4060,7 +4079,7 @@ void CodeGen::emit_expr(std::ostream &os, Expr *e) {
                << tmp_buf << ");\n";
           } else if (is_float_type) {
             os << "          char " << tmp_buf << "[32]; snprintf(" << tmp_buf
-               << ", sizeof(" << tmp_buf << "), \"%g\", (double)(*" << tmp_ep
+               << ", sizeof(" << tmp_buf << "), risk_float_fmt, (double)(*" << tmp_ep
                << ")); risk_strbuf_append(&" << tmp_sb << ", " << tmp_buf
                << ");\n";
           } else if (is_bool_type) {
@@ -4228,7 +4247,7 @@ void CodeGen::emit_expr(std::ostream &os, Expr *e) {
                << tmp_buf << ");\n";
           } else if (is_float_type) {
             os << "          char " << tmp_buf << "[32]; snprintf(" << tmp_buf
-               << ", sizeof(" << tmp_buf << "), \"%g\", (double)(*" << tmp_ep
+               << ", sizeof(" << tmp_buf << "), risk_float_fmt, (double)(*" << tmp_ep
                << ")); risk_strbuf_append(&" << tmp_sb << ", " << tmp_buf
                << ");\n";
           } else if (is_bool_type) {

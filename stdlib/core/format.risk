@@ -1,0 +1,17 @@
+extern "stdio.h" lib "stdio.h" {
+  func risk_set_float_precision(digits: i32) -> void;
+  func risk_set_float_fixed(decimals: i32) -> void;
+  func risk_reset_float_format() -> void;
+}
+
+func fmtFloatPrecision(digits: i32) -> void {
+  risk_set_float_precision(digits);
+}
+
+func fmtFloatFixed(decimals: i32) -> void {
+  risk_set_float_fixed(decimals);
+}
+
+func fmtFloatReset() -> void {
+  risk_reset_float_format();
+}

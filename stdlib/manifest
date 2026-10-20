@@ -6,6 +6,7 @@ core/memory.risk
 core/random.risk
 core/string.risk
 core/time.risk
+core/format.risk
 os/fs.risk
 os/os.risk
 os/path.risk
