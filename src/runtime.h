@@ -197,8 +197,7 @@ static inline void risk_strbuf_append(risk_strbuf_t *sb, const char *s) {
 
 static inline char *risk_strbuf_finish(risk_strbuf_t *sb) { return sb->data; }
 
-/* ---- runtime float print formatting (default "%g") ---- */
-static char risk_float_fmt[16] = "%g";
+static char risk_float_fmt[16] = "%g"; // runtime float formatting
 
 static inline void risk_set_float_precision(int digits) {
   if (digits < 1) digits = 1;

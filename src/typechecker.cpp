@@ -3489,7 +3489,6 @@ static bool is_const_compatible_init(const std::string &decl,
 
   std::string decl_inner = strip_const(decl);
 
-  // All integer types interconvert; f32/f64 interconvert (and ints <-> floats).
   if (is_numeric_type_name(decl_inner) && is_numeric_type_name(strip_const(init)))
     return true;
   if (decl_inner != decl) {
@@ -4397,7 +4396,6 @@ bool TypeChecker::unify_generic_param(
     } else if (existing->second != bind_value &&
                !gp.is_value && is_numeric_type_name(existing->second) &&
                is_numeric_type_name(bind_value)) {
-      // Numeric args interchange: widen the binding instead of erroring.
       existing->second = promote_numeric_name(existing->second, bind_value);
     } else if (existing->second != bind_value) {
       err = "conflicting " + std::string(gp.is_value ? "values" : "types") +
@@ -4785,8 +4783,7 @@ TypeInfo TypeChecker::resolve_generic_call(CallExpr *call, IdentifierExpr *id,
     }
   }
 
-  // Extern (C) generics have no body to instantiate: keep the C symbol name
-  // and just compute the substituted return type.
+
   if (tmpl->is_extern) {
     TypeInfo ret("void");
     if (tmpl->return_type) {
