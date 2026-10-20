@@ -7,7 +7,8 @@
 <p align="center">
   A statically typed programming language that compiles to C99.
   <br />
-  <a href="https://hesed-charis.vercel.app/projects/risk">Project page</a>
+  <a href="https://hesed-charis.vercel.app/projects/risk">Dev Page</a>
+  <a href="https://https://risk-playground-web.vercel.app/">Project Page</a>
 </p>
 
 ---
